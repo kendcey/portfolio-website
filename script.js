@@ -94,12 +94,7 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 
 // Close menu when clicking a link & Handle active link on click
 document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', function(e) {
-        // Don't close menu if clicking dropdown trigger on mobile (let dropdown toggle handle it)
-        if (this.classList.contains('dropdown-trigger') && window.innerWidth <= 650) {
-            return;
-        }
-        
+    link.addEventListener('click', function() {
         navLinks.classList.remove('active');
         hamburger.textContent = 'Menu'; // Reset hamburger text to 'Menu'
         hamburger.classList.remove('active'); // Remove active class from hamburger
@@ -108,10 +103,8 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 
         // Remove active-link from all links
         document.querySelectorAll('.nav-links a').forEach(nav => nav.classList.remove('active-link'));
-        // Add active-link to the clicked link (if not a dropdown item)
-        if (!this.closest('.dropdown-menu')) {
-            this.classList.add('active-link');
-        }
+        // Add active-link to the clicked link
+        this.classList.add('active-link');
     });
 });
 
@@ -128,114 +121,6 @@ if (hamburger && navLinks && navbar) {
     });
 }
 
-// Handle dropdown toggle in mobile sidebar and calculate width
-const dropdownTrigger = document.querySelector('.dropdown-trigger');
-const navDropdown = document.querySelector('.nav-dropdown');
-const dropdownMenu = document.querySelector('.dropdown-menu');
-
-if (dropdownTrigger && navDropdown && dropdownMenu) {
-    const navbar = document.querySelector('.navbar');
-    const body = document.body;
-    
-    // Calculate dropdown width from Projects to Contact on desktop
-    function calculateDropdownWidth() {
-        if (window.innerWidth > 650) {
-            const projectsLink = document.querySelector('.dropdown-trigger');
-            const contactLink = document.querySelector('.nav-links a[href="#contact"]');
-            
-            if (projectsLink && contactLink) {
-                const projectsRect = projectsLink.getBoundingClientRect();
-                const contactRect = contactLink.getBoundingClientRect();
-                // Extend past Contact link
-                const width = contactRect.right - projectsRect.left + 20; // Add 20px past Contact
-                dropdownMenu.style.width = width + 'px';
-            }
-        } else {
-            dropdownMenu.style.width = '';
-        }
-    }
-    
-    // Calculate on load and resize
-    calculateDropdownWidth();
-    window.addEventListener('resize', calculateDropdownWidth);
-    
-    // Handle dropdown hover to push content down
-    const navContent = document.querySelector('.nav-content');
-    let hoverHandler = null;
-    let leaveHandler = null;
-    
-    function setupDropdownHover() {
-        // Remove old handlers if they exist
-        if (hoverHandler) {
-            navDropdown.removeEventListener('mouseenter', hoverHandler);
-            navDropdown.removeEventListener('mouseleave', leaveHandler);
-        }
-        
-        if (window.innerWidth > 650 && navContent) {
-            const hero = document.querySelector('.hero');
-            const firstSection = document.querySelector('.section');
-            const targetElement = hero || firstSection;
-            
-            if (targetElement) {
-                hoverHandler = function() {
-                    // Calculate dropdown height
-                    const dropdownHeight = dropdownMenu.scrollHeight;
-                    // Add padding-bottom to nav-content to expand navbar
-                    navContent.style.paddingBottom = dropdownHeight + 'px';
-                    // Add margin-top to push content down
-                    targetElement.style.marginTop = dropdownHeight + 'px';
-                    targetElement.style.transition = 'margin-top 0.3s ease';
-                };
-                
-                leaveHandler = function() {
-                    // Remove padding and margin when dropdown closes
-                    navContent.style.paddingBottom = '0';
-                    targetElement.style.marginTop = '0';
-                };
-                
-                navDropdown.addEventListener('mouseenter', hoverHandler);
-                navDropdown.addEventListener('mouseleave', leaveHandler);
-            }
-        }
-    }
-    
-    setupDropdownHover();
-    
-    // Recalculate on resize
-    window.addEventListener('resize', function() {
-        calculateDropdownWidth();
-        const hero = document.querySelector('.hero');
-        const firstSection = document.querySelector('.section');
-        const targetElement = hero || firstSection;
-        
-        if (window.innerWidth <= 650) {
-            if (navContent) {
-                navContent.style.paddingBottom = '0';
-            }
-            if (targetElement) {
-                targetElement.style.marginTop = '0';
-            }
-        }
-        setupDropdownHover();
-    });
-    
-    // Handle mobile click toggle
-    dropdownTrigger.addEventListener('click', function(e) {
-        // Only prevent default and toggle on mobile
-        if (window.innerWidth <= 650) {
-            e.preventDefault();
-            e.stopPropagation();
-            navDropdown.classList.toggle('active');
-        }
-    });
-    
-    // Close dropdown when clicking outside on mobile
-    document.addEventListener('click', function(e) {
-        if (window.innerWidth <= 650 && navDropdown && !navDropdown.contains(e.target)) {
-            navDropdown.classList.remove('active');
-        }
-    });
-}
 
 // Handle contact form submission with FormSubmit
 const contactForm = document.querySelector('.contact-form');
