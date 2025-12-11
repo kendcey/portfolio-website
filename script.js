@@ -92,9 +92,37 @@ document.querySelectorAll('.nav-links a').forEach(link => {
     }
 });
 
+// Handle dropdown toggle in mobile sidebar
+const dropdownTrigger = document.querySelector('.dropdown-trigger');
+const navDropdown = document.querySelector('.nav-dropdown');
+
+if (dropdownTrigger && navDropdown) {
+    // Handle mobile click toggle
+    dropdownTrigger.addEventListener('click', function(e) {
+        // Only prevent default and toggle on mobile
+        if (window.innerWidth <= 650) {
+            e.preventDefault();
+            e.stopPropagation();
+            navDropdown.classList.toggle('active');
+        }
+    });
+    
+    // Close dropdown when clicking outside on mobile
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 650 && navDropdown && !navDropdown.contains(e.target)) {
+            navDropdown.classList.remove('active');
+        }
+    });
+}
+
 // Close menu when clicking a link & Handle active link on click
 document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', function() {
+    link.addEventListener('click', function(e) {
+        // Don't close menu if clicking dropdown trigger on mobile (let dropdown toggle handle it)
+        if (this.classList.contains('dropdown-trigger') && window.innerWidth <= 650) {
+            return;
+        }
+        
         navLinks.classList.remove('active');
         hamburger.textContent = 'Menu'; // Reset hamburger text to 'Menu'
         hamburger.classList.remove('active'); // Remove active class from hamburger
@@ -103,8 +131,10 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 
         // Remove active-link from all links
         document.querySelectorAll('.nav-links a').forEach(nav => nav.classList.remove('active-link'));
-        // Add active-link to the clicked link
-        this.classList.add('active-link');
+        // Add active-link to the clicked link (if not a dropdown item)
+        if (!this.closest('.dropdown-menu')) {
+            this.classList.add('active-link');
+        }
     });
 });
 
@@ -119,6 +149,26 @@ if (hamburger && navLinks && navbar) {
             navbar.classList.remove('sidebar-open'); // Remove sidebar-open class from navbar
         }
     });
+    
+    // Prevent scrolling when sidebar is open
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class') {
+                if (navLinks.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            }
+        });
+    });
+    
+    observer.observe(navLinks, { attributes: true });
+    
+    // Also check on initial load
+    if (navLinks.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 

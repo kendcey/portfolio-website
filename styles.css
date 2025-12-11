@@ -206,8 +206,41 @@ h2 {
     font-size: 1rem;
 }
 
-.nav-links a:first-child {
+.nav-links a:first-child,
+.nav-links > .nav-dropdown:first-child .dropdown-trigger {
     border-left: none; /* No line before the first item */
+}
+
+/* Make dropdown trigger look like normal nav link on desktop */
+@media (min-width: 651px) {
+    .nav-dropdown .dropdown-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: black;
+        font-weight: 500;
+        text-decoration: none;
+        padding: 0 15px;
+        height: 100%;
+        border-left: 1px solid black;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        position: relative;
+        line-height: 1;
+        font-size: 1rem;
+    }
+    
+    .nav-dropdown .dropdown-trigger:hover {
+        background-color: black;
+        color: #E0DFDE;
+    }
+    
+    .nav-dropdown .dropdown-trigger i {
+        display: none; /* Hide chevron on desktop */
+    }
+    
+    .nav-dropdown .dropdown-menu {
+        display: none; /* Hide dropdown menu on desktop */
+    }
 }
 
 .nav-links a:hover {
@@ -366,6 +399,124 @@ h2 {
         z-index: 2;
     }
 
+    .nav-dropdown.active::after {
+        display: none;
+    }
+
+    /* Mobile Dropdown Styles - Only for sidebar */
+    .nav-dropdown {
+        position: relative;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        flex-shrink: 0;
+    }
+
+    .nav-dropdown .dropdown-trigger {
+        width: 100%;
+        justify-content: center;
+        background-color: black;
+        color: #E0DFDE;
+        padding: 0;
+        height: 25%;
+        min-height: calc((100vh - 60px) / 4);
+        border: none;
+        font-size: 2.5rem;
+        font-weight: 700;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .nav-dropdown .dropdown-trigger i {
+        margin-left: 10px;
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        font-size: 1.5rem;
+        vertical-align: middle;
+    }
+
+    .nav-dropdown.active .dropdown-trigger i {
+        transform: rotate(180deg);
+    }
+
+    .nav-dropdown .dropdown-trigger::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background-color: #E0DFDE;
+        z-index: 2;
+    }
+
+    .nav-dropdown.active .dropdown-trigger::after {
+        display: none;
+    }
+
+    .dropdown-menu {
+        position: static;
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        visibility: hidden;
+        transform: none;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease, visibility 0.4s ease;
+        background-color: #1a1a1a;
+        border-top: none;
+        box-shadow: none;
+        min-width: auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .nav-dropdown.active .dropdown-menu {
+        opacity: 1;
+        visibility: visible;
+        max-height: 1000px;
+    }
+
+    .dropdown-menu a {
+        padding: 18px 20px;
+        font-size: 1.3rem;
+        border-bottom: 1px solid #333;
+        height: auto;
+        text-align: center;
+        background-color: #1a1a1a;
+        color: #E0DFDE;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .dropdown-menu a:hover {
+        background-color: #E0DFDE;
+        color: black;
+    }
+
+    .dropdown-menu a:last-child {
+        border-bottom: 1px solid #E0DFDE;
+    }
+
+    .nav-dropdown .dropdown-trigger:hover {
+        background-color: #E0DFDE;
+        color: black;
+    }
+
+    /* When dropdown is active, allow sidebar to scroll to show all items */
+    .nav-links:has(.nav-dropdown.active) {
+        overflow-y: auto;
+        height: calc(100vh - 60px);
+    }
+
+    /* Keep other nav items at their original size */
+    .nav-links:has(.nav-dropdown.active) > a {
+        height: 25%;
+        min-height: calc((100vh - 60px) / 4);
+        flex-shrink: 0;
+    }
 }
 
 /* Base styles for all screen sizes */
