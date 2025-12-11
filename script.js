@@ -92,17 +92,41 @@ document.querySelectorAll('.nav-links a').forEach(link => {
     }
 });
 
-// Handle dropdown toggle in mobile sidebar
+// Handle dropdown hover/tap in mobile sidebar
 const dropdownTrigger = document.querySelector('.dropdown-trigger');
 const navDropdown = document.querySelector('.nav-dropdown');
 
 if (dropdownTrigger && navDropdown) {
-    // Handle mobile click toggle
+    let hoverTimeout = null;
+    
+    // For hover: open dropdown on mouseenter
+    navDropdown.addEventListener('mouseenter', function() {
+        if (window.innerWidth <= 650) {
+            // Clear any pending timeout
+            if (hoverTimeout) {
+                clearTimeout(hoverTimeout);
+                hoverTimeout = null;
+            }
+            navDropdown.classList.add('active');
+        }
+    });
+    
+    // For hover: close dropdown on mouseleave with small delay to prevent glitch
+    navDropdown.addEventListener('mouseleave', function() {
+        if (window.innerWidth <= 650) {
+            // Small delay to prevent glitch when moving between trigger and menu
+            hoverTimeout = setTimeout(function() {
+                navDropdown.classList.remove('active');
+            }, 100);
+        }
+    });
+    
+    // For click/tap: toggle dropdown
     dropdownTrigger.addEventListener('click', function(e) {
-        // Only prevent default and toggle on mobile
         if (window.innerWidth <= 650) {
             e.preventDefault();
             e.stopPropagation();
+            // Toggle dropdown
             navDropdown.classList.toggle('active');
         }
     });
@@ -149,26 +173,6 @@ if (hamburger && navLinks && navbar) {
             navbar.classList.remove('sidebar-open'); // Remove sidebar-open class from navbar
         }
     });
-    
-    // Prevent scrolling when sidebar is open
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.attributeName === 'class') {
-                if (navLinks.classList.contains('active')) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = '';
-                }
-            }
-        });
-    });
-    
-    observer.observe(navLinks, { attributes: true });
-    
-    // Also check on initial load
-    if (navLinks.classList.contains('active')) {
-        document.body.style.overflow = 'hidden';
-    }
 }
 
 

@@ -37,6 +37,9 @@ body {
 
 body.no-scroll {
     overflow: hidden; /* Prevent scrolling on the body when sidebar is open */
+    position: fixed;
+    width: 100%;
+    height: 100%;
 }
 
 .container {
@@ -471,6 +474,7 @@ h2 {
         flex-direction: column;
     }
 
+    .nav-dropdown:hover .dropdown-menu,
     .nav-dropdown.active .dropdown-menu {
         opacity: 1;
         visibility: visible;
