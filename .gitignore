@@ -1,15 +1,10 @@
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-*.log
-node_modules/
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
 
+# Original uncompressed video (175MB, exceeds GitHub's 100MB limit)
+clozure/CLOZURE WEFUNDER PITCH.mp4
+
+# Local dev helper files
+create_black_favicon.py
+create_palette_favicon.py
+create_favicon.py
+FAVICON_INSTRUCTIONS.md

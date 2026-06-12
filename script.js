@@ -1,13 +1,75 @@
 // Smooth scrolling for navigation links
+function normalizePath(pathname) {
+    let path = pathname.replace('/kendceyportfolio', '');
+    if (path.endsWith('/index.html')) {
+        path = path.slice(0, -('/index.html'.length)) || '/';
+    }
+    if (path.endsWith('/') && path.length > 1) {
+        path = path.slice(0, -1);
+    }
+    return path || '/';
+}
+
+function isIndexPath(path) {
+    return path === '/' || path === '';
+}
+
+function pathsReferToSamePage(currentPath, linkPath) {
+    return currentPath === linkPath || (isIndexPath(currentPath) && isIndexPath(linkPath));
+}
+
+function updateNavActiveState() {
+    const currentPath = normalizePath(window.location.pathname);
+    const currentHash = window.location.hash;
+    const currentFile = window.location.pathname.split('/').pop() || 'index.html';
+    const dropdownTrigger = document.querySelector('.dropdown-trigger');
+    const onIndex = isIndexPath(currentPath);
+
+    document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active-link'));
+
+    let projectsActive = false;
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        const url = new URL(link.href, window.location.origin);
+        const linkPath = normalizePath(url.pathname);
+        const linkHash = url.hash;
+        const linkFile = url.pathname.split('/').pop();
+
+        if (link.closest('.dropdown-menu')) {
+            if (linkHash) {
+                if (onIndex && currentHash === linkHash) {
+                    link.classList.add('active-link');
+                    if (linkHash === '#projects') {
+                        projectsActive = true;
+                    }
+                }
+            } else if (linkFile && linkFile === currentFile && linkFile !== 'index.html') {
+                link.classList.add('active-link');
+                projectsActive = true;
+            }
+            return;
+        }
+
+        if (linkHash && pathsReferToSamePage(currentPath, linkPath) && currentHash === linkHash) {
+            link.classList.add('active-link');
+            if (link.classList.contains('dropdown-trigger')) {
+                projectsActive = true;
+            }
+        }
+    });
+
+    if (projectsActive && dropdownTrigger) {
+        dropdownTrigger.classList.add('active-link');
+    }
+}
+
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        // Get the target section
         const targetId = this.getAttribute('href');
         const targetElement = document.querySelector(targetId);
 
         if (targetElement) {
-            // Calculate the position to scroll to, accounting for fixed navbar
             const navbarHeight = document.querySelector('.navbar').offsetHeight;
             const targetPosition = targetElement.offsetTop - navbarHeight;
 
@@ -15,6 +77,9 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 top: targetPosition,
                 behavior: 'smooth'
             });
+
+            history.pushState(null, '', targetId);
+            updateNavActiveState();
         }
     });
 });
@@ -61,36 +126,9 @@ if (hamburger && navLinks && navbar) {
     });
 }
 
-// Set active class for current page in navbar on initial load
-const currentPathname = window.location.pathname.replace('/kendceyportfolio', ''); // Handle base path
-const currentHash = window.location.hash;
-
-document.querySelectorAll('.nav-links a').forEach(link => {
-    const linkPathname = new URL(link.href, window.location.origin).pathname.replace('/kendceyportfolio', ''); // Use origin to get full URL
-    const linkHash = new URL(link.href, window.location.origin).hash;
-
-    // Remove active-link from all links on load before applying new one
-    link.classList.remove('active-link');
-
-    // Skip activating the "Home" link
-    if (link.textContent.trim() === 'Home') {
-        return; // Skip this iteration, do not add active-link to Home
-    }
-
-    if (linkHash) {
-        // Handle internal links like #projects
-        // Only activate if the pathname matches AND the hash matches
-        if (currentPathname === linkPathname && currentHash === linkHash) {
-            link.classList.add('active-link');
-        }
-    } else {
-        // Handle external links or direct page links (e.g., about.html, contact.html)
-        // Activate if pathname matches exactly for non-home pages
-        if (currentPathname === linkPathname) {
-            link.classList.add('active-link');
-        }
-    }
-});
+updateNavActiveState();
+window.addEventListener('hashchange', updateNavActiveState);
+window.addEventListener('popstate', updateNavActiveState);
 
 // Handle dropdown hover/tap in mobile sidebar
 const dropdownTrigger = document.querySelector('.dropdown-trigger');
@@ -148,16 +186,13 @@ document.querySelectorAll('.nav-links a').forEach(link => {
         }
         
         navLinks.classList.remove('active');
-        hamburger.textContent = 'Menu'; // Reset hamburger text to 'Menu'
-        hamburger.classList.remove('active'); // Remove active class from hamburger
-        document.body.classList.remove('no-scroll'); // Remove no-scroll class from body
-        navbar.classList.remove('sidebar-open'); // Remove sidebar-open class from navbar
+        hamburger.textContent = 'Menu';
+        hamburger.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+        navbar.classList.remove('sidebar-open');
 
-        // Remove active-link from all links
-        document.querySelectorAll('.nav-links a').forEach(nav => nav.classList.remove('active-link'));
-        // Add active-link to the clicked link (if not a dropdown item)
-        if (!this.closest('.dropdown-menu')) {
-            this.classList.add('active-link');
+        if (!this.getAttribute('href')?.startsWith('#')) {
+            setTimeout(updateNavActiveState, 0);
         }
     });
 });
@@ -410,6 +445,60 @@ if (backToTopBtn) {
     backToTopBtn.addEventListener('click', function () {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+}
+
+// All Logos preview — random logos with fade in/out rotation
+const logoSlots = document.querySelectorAll('.logos-preview-grid .logo-slot img');
+
+if (logoSlots.length > 0) {
+    const logoSources = [
+        'logos/clozure.png',
+        'logos/rollin-rich/rollin-rich-logo.png',
+        'logos/le-mon/le-mon-logo.png',
+        'logos/kulminated/kulminated1.png',
+        'logos/kulminated/kulminated2.png',
+        'logos/dark/dark-logo1.png',
+        'logos/dark/dark-logo2.png',
+        'logos/delete/delete-logo1.png',
+        'logos/delete/delete-logo2.png',
+        'logos/u-pod/u-pod-logo2.png',
+        'logos/u-pod/u-pod-logo2png.png',
+        'logos/french-prints/french-prints-logo1.png',
+        'logos/french-prints/french-prints-logo2.png',
+        'logos/HADO-logo.png',
+        'logos/don-robie-logo.svg',
+        'logos/child-of-god/logo.png'
+    ];
+
+    const currentLogos = [];
+
+    function pickUnusedLogo() {
+        const available = logoSources.filter(src => !currentLogos.includes(src));
+        return available[Math.floor(Math.random() * available.length)];
+    }
+
+    // Initial fill with 4 unique random logos
+    logoSlots.forEach((img, i) => {
+        const src = pickUnusedLogo();
+        currentLogos[i] = src;
+        img.src = src;
+        // Stagger the initial fade-in
+        setTimeout(() => img.classList.add('visible'), 150 * i + 100);
+    });
+
+    // Every interval, swap one random slot to a new random logo
+    setInterval(() => {
+        const slotIndex = Math.floor(Math.random() * logoSlots.length);
+        const img = logoSlots[slotIndex];
+        const nextSrc = pickUnusedLogo();
+
+        img.classList.remove('visible');
+        setTimeout(() => {
+            currentLogos[slotIndex] = nextSrc;
+            img.src = nextSrc;
+            img.classList.add('visible');
+        }, 250); // wait for fade-out to finish
+    }, 900);
 }
 
 // Looping roll-up animation for about images
